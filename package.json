@@ -7,7 +7,7 @@
     "node": "12.14.0"
   },
   "scripts": {
-    "start": " ./bin/www",
+    "start": "node ./bin/www",
     "dev": "nodemon ./bin/www"
   },
   "dependencies": {
