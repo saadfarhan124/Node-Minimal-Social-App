@@ -1,0 +1,223 @@
+extends layout
+
+
+block content
+  header
+    nav(class="navbar  navbar-expand-lg navbar-dark grey")
+      a(class="navbar-brand" href="#") <strong>LOGO</strong>
+      button(class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation") <span class="navbar-toggler-icon"></span>
+      div(class="collapse navbar-collapse" id="navbarSupportedContent")
+        ul(class="navbar-nav ml-auto")
+          li(class="nav-item")
+            div(class='avatar')
+              #{avatar}
+            //- robott avatar get via http api 
+            //- img(src="https://avatars.dicebear.com/v2/bottts/#{UserID}.svg" class="rounded-circle z-depth-1-half winter-neva-gradient" style="height:50px; width:50px")
+          li(class="nav-item")
+            h3(class=" pt-2 mb-0 pl-2") #{UserID}
+
+  div(class="row mx-3")
+    div(class="col-md-8 mt-5 px-5")
+      div(class="card postRadius ")
+        form(method='POST' action='/api/anonymousPosts' enctype="multipart/form-data")
+          input(type='hidden' value="#{UserID}" name="userID")
+
+          div(class="form-group shadow-textarea m-0 ")
+            div(style="height:35px; background-color:#f5f6f7" )
+              h6(class="p-2 m-0")<i class="fas fa-pencil-alt pr-2"></i>Create Post</a>
+            textarea(style=" background-color:#f5f6f7" class="form-control  " id="exampleFormControlTextarea6" rows="3" placeholder="Write something here..." name='content')
+          
+          //-simple file input
+          //- div.input-group 
+          //-   div.custom-file
+          //-     input.custom-file-input(type='file' name='postImages' accept="image/*", multiple)
+          //-     label.custom-file-label(for="inputGroupFile01") Choose file:
+          
+          fieldset(class="form-group m-0" style=" background-color:#f5f6f7" )
+            <a class="btn btn-md  deep-blue-gradient rounded-pill " href="javascript:void(0)" onclick="$('#pro-image').click()" ><i class="fas fa-images pr-2"></i>Photo</a>
+            input(type='file' name='postImages' id="pro-image" style="display:none" accept="image/*" class="form-control", multiple)
+            button(type='submit' class="btn winter-neva-gradient rounded-pill btn-md float-right waves-effect") <i class="fas fa-paper-plane pr-2"></i>Post</a>
+          div(class="imgPreview")
+          
+  
+      h4(class="pt-4 pb-2") Recent Post
+      form(method="get" action='/api/anonymousPosts/:pid')
+        each val, postIndex in posts
+          
+          section(class = "mb-5")
+            div(class="card news-card")
+              div(class="card-body")
+                div(class="content px-3")
+                  div(class="float-left row")
+                    div(class='avatar')
+                      #{postAvatars[postIndex].postAvatar}
+                    //-robott avatar get via http api 
+                    //-img(src="https://avatars.dicebear.com/v2/bottts/#{val.anonymousId}.svg" class="rounded-circle z-depth-1-half winter-neva-gradient" style="height:50px; width:50px")
+                    p(class="pt-3 pl-2 ") #{val.anonymousId}
+                    input(style="display:none;" name="pid" value="#{val.id}")
+                    button(type="submit")
+                  div(class="float-right")
+                    p(class="pt-3 pl-2 ") #{val.timeStamp.toLocaleString()}
+              div(id="carousel#{postIndex}" class="carousel slide carousel-fade" data-ride="carousel")
+                ol(class="carousel-indicators")
+                  each image, index in val.images
+                    if postIndex == 0
+                      li(data-target="#carousel#{postIndex}" data-slide-to="#{index}" class="active")
+                    else
+                      li(data-target="#carousel#{postIndex}" data-slide-to="#{index}")
+                div(class="carousel-inner" role="listbox")
+                  each image, index in val.images
+                    if index == 0  
+                      div(class="carousel-item active")
+                        img(class="d-block w-100" src="../uploads/#{val.anonymousId}/#{image.imageTitle}" alt="First slide")
+                    else
+                      div(class="carousel-item ")
+                        img(class="d-block w-100" src="../uploads/#{val.anonymousId}/#{image.imageTitle}" alt="First slide")
+                  a(class="carousel-control-prev" href="#carousel#{postIndex}" role="button" data-slide="prev")
+                    span(class="carousel-control-prev-icon" aria-hidden="true")
+                    span(class="sr-only") Previous
+                  a(class="carousel-control-next" href="#carousel#{postIndex}" role="button" data-slide="next")
+                    span( class="carousel-control-next-icon" aria-hidden="true")
+                    span(class="sr-only") Next
+              div(class="card-body")
+                div
+                  h4 #{val.content}
+                  <p><i class=" fas fa-comment pr-2"></i>#{val.comments.length}</p>
+                  <span class="facebook-share" data-js="facebook-share">Share on Facebook</span>
+                  div(class="fb-share-button" 
+                      data-href="http://localhost:3000" 
+                      data-layout="button_count")
+                  
+                <hr>
+
+                form(method='POST' action='/api/anonymousPosts/comment' enctype="multipart/form-data")
+                  div(class="md-form md-bg form-group row px-2")
+                    input(type="hidden", name="postID", value = "#{val.anonymousId}")
+                    input(type='hidden' value="#{UserID}" name="userID")
+                    div(class="col-md-11 p-0")
+                      input(type="text" id="inputIconEx2" class="form-control" name="commentContent")
+                      label(for="commentContent" ) Comment
+                    div(class="col-md-1")
+                      button.btn.btn-primary.winter-neva-gradient.rounded-pill.px-3(type='submit', style="margin:0px!important;") <i class="fas fa-paper-plane" style="cursor:pointer"></i>
+                    fieldset(class="form-group m-0" style=" background-color:#f5f6f7" )
+                      <a class="btn btn-md  deep-blue-gradient rounded-pill " href="javascript:void(0)" onclick="$('#btnComment').click()" ><i class="fas fa-images pr-2"></i>Photo</a>
+                      input(type='file' name='postImagesComment' id="btnComment" style="display:none" accept="image/*" class="form-control", multiple)
+                    div(class="imgPreview")
+                div(class="scrollbar scrollbar-primary")
+                  div(class="force-overflow")
+                    each comment, commentIndex in val.comments 
+                      ul( class="list-group list-group-flush")
+                        li(class="list-group-item")
+                          div(class="row")
+                            div(class="col-md-9")
+                              div(class="row")
+                                div(class='avatar')
+                                  #{postAvatars[postIndex].commentAvatars[commentIndex]}
+                                //-robott avatar get via http api 
+                                //-img(src="https://avatars.dicebear.com/v2/bottts/#{comment.userID}.svg" class="rounded-circle z-depth-1-half winter-neva-gradient" style="height:50px; width:50px")
+                                p(class="pt-3 pl-2  text-muted") #{comment.userID}
+                                strong(class="pt-3 pl-2 ") #{comment.commentContent}
+                                each image, Index in comment.images
+                                  img(src="../comments/#{val.anonymousId}/#{image.imageTitle}" class="z-depth-1-half winter-neva-gradient" style="height:50px; width:50px")
+                            div(class="col-md-3 text-right")
+                              small #{comment.timeStamp.toLocaleString()}
+                              div(class="fb-like"
+                              data-share="true"
+                              data-width="450"
+                              data-show-faces="true")
+                          
+                            //- toLocalDateString and toLocalTimeString
+    div(class="col-md-4 mt-5" )
+      h4 Top 3 Post
+      each val, postIndex in topPosts
+        section(class = "mb-5")
+          div(class="card news-card")
+            div(class="card-body")
+              div(class="content px-3")
+                div(class="float-left row")
+                  div(class='avatar')
+                    #{topPostsAvatars[postIndex].postAvatar}
+                  //-robott avatar get via http api 
+                  //-img(src="https://avatars.dicebear.com/v2/bottts/#{val.anonymousId}.svg" class="rounded-circle z-depth-1-half winter-neva-gradient" style="height:50px; width:50px")
+                  p(class="pt-3 pl-2 ") #{val.anonymousId}
+                div(class="float-right")
+                  p(class="pt-3 pl-2 ") #{val.timeStamp.toLocaleString()}
+            div(id="topPostsCarouselarousel#{postIndex}" class="carousel slide carousel-fade" data-ride="carousel")
+              ol(class="carousel-indicators")
+                each image, index in val.images
+                  if postIndex == 0
+                    li(data-target="#topPostsCarousel#{postIndex}" data-slide-to="#{index}" class="active")
+                  else
+                    li(data-target="#topPostsCarousel#{postIndex}" data-slide-to="#{index}")
+              div(class="carousel-inner" style="height:150px" role="listbox")
+                each image, index in val.images
+                  if index == 0  
+                    div(class="carousel-item active")
+                      img(class="d-block w-100" src="../uploads/#{val.anonymousId}/#{image.imageTitle}" alt="First slide")
+                  else
+                    div(class="carousel-item ")
+                      img(class="d-block w-100" src="../uploads/#{val.anonymousId}/#{image.imageTitle}" alt="First slide")
+                a(class="carousel-control-prev" href="#topPostsCarouselarousel#{postIndex}" role="button" data-slide="prev")
+                  span(class="carousel-control-prev-icon" aria-hidden="true")
+                  span(class="sr-only") Previous
+                a(class="carousel-control-next" href="#topPostsCarouselarousel#{postIndex}" role="button" data-slide="next")
+                  span( class="carousel-control-next-icon" aria-hidden="true")
+                  span(class="sr-only") Next
+            div(class="card-body")
+              div
+                h4 #{val.content}
+                <p><i class=" fas fa-comment pr-2"></i>#{val.comments.length}</p>
+              <hr>
+
+              form(method='POST' action='/api/anonymousPosts/comment' )
+                div(class="md-form md-bg form-group row px-2")
+                  input(type="hidden", name="postID", value = "#{val.anonymousId}")
+                  input(type='hidden' value="#{UserID}" name="userID")
+                  div(class="col-md-10 p-0")
+                    input(type="text" id="inputIconEx2" class="form-control" name="commentContent")
+                    label(for="commentContent" ) Comment
+                  div(class="col-md-2")
+                    button.btn.btn-primary.winter-neva-gradient.rounded-pill.px-3(type='submit', style="margin:0px!important;") <i class="fas fa-paper-plane" style="cursor:pointer"></i>
+              div(class="scrollbar scrollbar-primary")
+                div(class="force-overflow")
+                  each comment, commentIndex in val.comments 
+                    ul( class="list-group list-group-flush")
+                      li(class="list-group-item")
+                        div(class="row")
+                          div(class="col-md-9")
+                            div(class="row")
+                              div(class='avatar')
+                                #{topPostsAvatars[postIndex].commentAvatars[commentIndex]}
+                              //-robott avatar get via http api 
+                              //-img(src="https://avatars.dicebear.com/v2/bottts/#{comment.userID}.svg" class="rounded-circle z-depth-1-half winter-neva-gradient" style="height:50px; width:50px")
+                              p(class="pt-3 pl-2  text-muted") #{comment.userID}
+                              strong(class="pt-3 pl-2 ") #{comment.commentContent}
+                          div(class="col-md-3 text-right")
+                            small #{comment.timeStamp.toLocaleString()}
+                            //- toLocalDateString and toLocalTimeString
+
+              
+
+  //-avatar
+  script.
+    var avatars = document.getElementsByClassName('avatar');
+    for(let i = 0; i < avatars.length; i++){
+      document.getElementsByClassName('avatar')[i].lastChild.textContent = "";
+      document.getElementsByClassName('avatar')[i].firstChild.textContent = "";
+    
+      document.getElementsByClassName('avatar')[i].children[0].nextSibling.textContent = "";
+    }
+    var facebookShare = document.querySelector('[data-js="facebook-share"]');
+
+    facebookShare.onclick = function(e) {
+      e.preventDefault();
+      var facebookWindow = window.open('https://www.facebook.com/sharer/sharer.php?u=http://localhost:3000', 'facebook-popup', 'height=350,width=600');
+      if(facebookWindow.focus) { facebookWindow.focus(); }
+        return false;
+    }
+   
+    
+  
+    
+                    
